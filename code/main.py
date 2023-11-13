@@ -16,6 +16,10 @@ def enemy_movement(dir):
     return movement
 
 
+def update_enemies():
+  pass
+
+
 def main():
     # move code only needed once here
     pygame.init()
@@ -112,7 +116,7 @@ def main():
 
             # iterates over a copy of the enemy list
             # TODO: put enemy loop in function
-            score, missile_list, enemy_list, enemy_missile_ist, enemy_move = update_enemies(enemy_list, missile_list, )
+            # score, missile_list, enemy_list, enemy_missile_ist, enemy_move = update_enemies(enemy_list, missile_list, )
             for enemy in list(enemy_list):
                 enemy.rect.x += movement
                 enemy.animation()
