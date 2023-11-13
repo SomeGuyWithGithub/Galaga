@@ -22,11 +22,7 @@ def update_enemies():
         enemy.animation()
 
     
-    def 
-        
-    for enemy in list(enemy_list):
-        enemy_move(enemy)
-
+    def check_collisions(enemy, score):
         # collisionlist() returns index of first collision
         collision_index = enemy.rect.collidelist(missile_list)
         if collision_index != -1:
@@ -35,7 +31,14 @@ def update_enemies():
             if not enemy.health:
                 enemy_list.remove(enemy)
                 score += enemy.score_gain
+        return score
+        
+        
+    for enemy in list(enemy_list):
+        enemy_move(enemy)
 
+        score = check_collisions(enemy, score)
+        
         # if the enemy is moving to right, then gives the farthest right position
         # else, gives the farthest left position
         if enemy_move == 'right':
