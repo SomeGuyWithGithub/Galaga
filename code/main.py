@@ -14,7 +14,7 @@ def main():
     pygame.init()
     screen = pygame.display.set_mode((500, 600))
     pygame.display.set_caption('Galaga')
-    clock = pygame.time.Clock()
+    clock = pygame.time.Clock()a
 
     player_surf = pygame.image.load('Graphics/player_images/player_image.png').convert_alpha()
     player_rect = player_surf.get_rect(center=(250, 550))
