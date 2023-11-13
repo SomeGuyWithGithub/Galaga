@@ -2,12 +2,23 @@ import basic_enemy
 import pygame
 from sys import exit
 
+
 def create_enemy_array():
     enemy_list = []
     for y in range(25, 201, 40):
         for x in range(10, 351, 50):
             enemy_list.append(basic_enemy.BasicEnemy((x, y)))
     return enemy_list
+
+
+def enemy_movement(dir):
+    movement = 1 if dir == 'right' else -1
+    return movement
+
+
+def update_enemies():
+  pass
+
 
 def main():
     # move code only needed once here
@@ -59,7 +70,6 @@ def main():
                 alive = True
                 player_rect = player_surf.get_rect(center=(250, 550))
 
-                score = 0
                 life_count = 2
 
                 missile_list = []
@@ -92,7 +102,8 @@ def main():
             if (keys[pygame.K_d] or keys[pygame.K_RIGHT]) and player_rect.right <= 475:
                 player_rect.x += 2
             # shoot missile
-            if (keys[pygame.K_SPACE] or keys[pygame.K_w] or keys[pygame.K_UP]) and current_time - player_missile_time >= 500:
+            if (keys[pygame.K_SPACE] or keys[pygame.K_w] or keys[
+                pygame.K_UP]) and current_time - player_missile_time >= 500:
                 player_missile_time = current_time
                 missile_rect = missile_surf.get_rect(center=player_rect.midtop)
                 missile_list.append(missile_rect)
@@ -101,12 +112,11 @@ def main():
             screen.fill('Black')
 
             # moves enemy to the right or left
-            if enemy_move == 'right':
-                movement = 1
-            else:
-                movement = -1
+            movement = enemy_movement(enemy_move)
 
             # iterates over a copy of the enemy list
+            # TODO: put enemy loop in function
+            # score, missile_list, enemy_list, enemy_missile_ist, enemy_move = update_enemies(enemy_list, missile_list, )
             for enemy in list(enemy_list):
                 enemy.rect.x += movement
                 enemy.animation()
@@ -136,6 +146,13 @@ def main():
 
                 screen.blit(enemy.surf, enemy.rect)
 
+            # once the farthest enemy is close enough to the border, then reverses direction
+            if enemy_move == 'right' and farthest >= 475:
+                enemy_move = 'left'
+            elif enemy_move == 'left' and farthest <= 25:
+                enemy_move = 'right'
+            # STOP
+
             if enemy_list == [] and not stage_clear:
                 stage_clear = True
                 time_at_stage_clear = current_time
@@ -159,12 +176,6 @@ def main():
             score_surf = font.render(str(score), False, (255, 255, 255))
             score_rect = score_surf.get_rect(topleft=(25, 50))
             screen.blit(score_surf, score_rect)
-
-            # once the farthest enemy is close enough to the border, then reverses direction
-            if enemy_move == 'right' and farthest >= 475:
-                enemy_move = 'left'
-            elif enemy_move == 'left' and farthest <= 25:
-                enemy_move = 'right'
 
             # moves missiles and remove once they go off-screen
             for missile in missile_list:
@@ -200,6 +211,7 @@ def main():
 
         pygame.display.update()
         clock.tick(60)
+
 
 if __name__ == '__main__':
     main()
