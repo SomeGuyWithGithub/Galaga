@@ -32,6 +32,9 @@ def update_enemies():
                 enemy_list.remove(enemy)
                 score += enemy.score_gain
         return score
+
+
+    def check
         
         
     for enemy in list(enemy_list):
