@@ -49,7 +49,6 @@ def main():
     player_missile_time = 0
     missile_surf = pygame.image.load('Graphics/player_images/player_missile.png').convert_alpha()
 
-    enemy_list = []
     enemy_list = create_enemy_array()
     enemy_move = 'right'
     farthest = 0
@@ -75,7 +74,6 @@ def main():
                 missile_list = []
                 player_missile_time = 0
 
-                enemy_list = []
                 enemy_move = 'right'
                 farthest = 0
 
