@@ -33,10 +33,10 @@ def update_enemies(enemy_list, movement, missile_list, score, enemy_move, farthe
         # if the enemy is moving to right, then gives the farthest right position
         # else, gives the farthest left position
         if enemy_move == 'right':
-            if enemy.rect.x > farthest:
+            if enemy.rect.right > farthest:
                 farthest = enemy.rect.right
         else:
-            if enemy.rect.x < farthest:
+            if enemy.rect.left < farthest:
                 farthest = enemy.rect.left
 
         # checks to see if create_missile returns a missile rect or None
@@ -46,6 +46,14 @@ def update_enemies(enemy_list, movement, missile_list, score, enemy_move, farthe
 
         screen.blit(enemy.surf, enemy.rect)
     return enemy_list, missile_list, score, farthest, enemy_missile_list, screen
+
+
+def change_move(enemy_move, farthest):
+    if enemy_move == 'right' and farthest >= 475:
+        enemy_move = 'left'
+    elif enemy_move == 'left' and farthest <= 25:
+        enemy_move = 'right'
+    return enemy_move
 
 
 def main():
@@ -149,11 +157,7 @@ def main():
                 farthest, current_time, enemy_missile_list, screen)
             
             # once the farthest enemy is close enough to the border, then reverses direction
-            if enemy_move == 'right' and farthest >= 475:
-                enemy_move = 'left'
-            elif enemy_move == 'left' and farthest <= 25:
-                enemy_move = 'right'
-            # STOP
+            enemy_move = change_move(enemy_move, farthest)
 
             if enemy_list == [] and not stage_clear:
                 stage_clear = True
