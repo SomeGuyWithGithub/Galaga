@@ -16,13 +16,11 @@ def enemy_movement(dir):
     return movement
 
 
-def update_enemies():
-    def enemy_move():
+def update_enemies(enemy_list, movement, missile_list, score, enemy_move, farthest, current_time, enemy_missile_list, screen):
+    for enemy in list(enemy_list):
         enemy.rect.x += movement
         enemy.animation()
 
-    
-    def check_collisions(score):
         # collisionlist() returns index of first collision
         collision_index = enemy.rect.collidelist(missile_list)
         if collision_index != -1:
@@ -31,10 +29,7 @@ def update_enemies():
             if not enemy.health:
                 enemy_list.remove(enemy)
                 score += enemy.score_gain
-        return score
 
-
-    def check_if_farthest(farthest):
         # if the enemy is moving to right, then gives the farthest right position
         # else, gives the farthest left position
         if enemy_move == 'right':
@@ -43,28 +38,14 @@ def update_enemies():
         else:
             if enemy.rect.x < farthest:
                 farthest = enemy.rect.left
-    return farthest
 
-
-    def make_missile(enemy_missile_list):
         # checks to see if create_missile returns a missile rect or None
         enemy_missile = enemy.create_missile(current_time)
         if enemy_missile is not None:
             enemy_missile_list.append(enemy_missile)
-        return enemy_missile_list
-        
-        
-    for enemy in list(enemy_list):
-        enemy_move()
-
-        score = check_collisions(score)
-        
-        farthest = check_if_farthest(farthest)
-
-        enemy_missile_list = make_missile(enemy_missile_list)
 
         screen.blit(enemy.surf, enemy.rect)
-
+    return enemy_list, missile_list, score, farthest, enemy_missile_list, screen
 
 
 def main():
@@ -161,9 +142,11 @@ def main():
             # moves enemy to the right or left
             movement = enemy_movement(enemy_move)
 
+            # dont know why this **** works, but dont touch it
             # iterates over a copy of the enemy list
-            # TODO: put enemy loop in function
-            # score, missile_list, enemy_list, enemy_missile_ist, enemy_move = update_enemies(enemy_list, missile_list, )
+            enemy_list, missile_list, score, farthest, enemy_missile_list, screen = update_enemies(
+                enemy_list, movement, missile_list, score, enemy_move,
+                farthest, current_time, enemy_missile_list, screen)
             
             # once the farthest enemy is close enough to the border, then reverses direction
             if enemy_move == 'right' and farthest >= 475:
