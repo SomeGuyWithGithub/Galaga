@@ -159,6 +159,7 @@ def main():
             # once the farthest enemy is close enough to the border, then reverses direction
             enemy_move = change_move(enemy_move, farthest)
 
+            #
             if enemy_list == [] and not stage_clear:
                 stage_clear = True
                 time_at_stage_clear = current_time
