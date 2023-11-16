@@ -131,10 +131,10 @@ def main():
                 # if the enemy is moving to right, then gives the farthest right position
                 # else, gives the farthest left position
                 if enemy_move == 'right':
-                    if enemy.rect.enemy.rect.right > farthest:
+                    if enemy.rect.right > farthest:
                         farthest = enemy.rect.right
                 else:
-                    if enemy.rect.enemy.rect.left < farthest:
+                    if enemy.rect.left < farthest:
                         farthest = enemy.rect.left
 
                 # checks to see if create_missile returns a missile rect or None
