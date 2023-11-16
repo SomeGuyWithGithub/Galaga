@@ -136,7 +136,6 @@ def main():
     player_missile_time = 0
     missile_surf = pygame.image.load('Graphics/player_images/player_missile.png').convert_alpha()
 
-    enemy_list = []
     enemy_list = create_enemy_array()
     enemy_move = 'right'
     farthest = 0
@@ -162,7 +161,6 @@ def main():
                 missile_list = []
                 player_missile_time = 0
 
-                enemy_list = []
                 enemy_move = 'right'
                 farthest = 0
 
@@ -203,10 +201,11 @@ def main():
 
             # dont know why this **** works, but dont touch it
             # iterates over a copy of the enemy list
+
             enemy_list, missile_list, score, farthest, enemy_missile_list, screen = update_enemies(
                 enemy_list, movement, missile_list, score, enemy_move,
                 farthest, current_time, enemy_missile_list, screen)
-            
+
             # once the farthest enemy is close enough to the border, then reverses direction
             enemy_move = change_move(enemy_move, farthest)
 
