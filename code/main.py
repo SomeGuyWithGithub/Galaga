@@ -16,8 +16,95 @@ def enemy_movement(dir):
     return movement
 
 
-def update_enemies():
-  pass
+def update_enemies(enemy_list, movement, missile_list, score, enemy_move, farthest, current_time, enemy_missile_list, screen):
+    for enemy in list(enemy_list):
+        enemy.rect.x += movement
+        enemy.animation()
+
+        # collisionlist() returns index of first collision
+        collision_index = enemy.rect.collidelist(missile_list)
+        if collision_index != -1:
+            del missile_list[collision_index]
+            enemy.health -= 1
+            if not enemy.health:
+                enemy_list.remove(enemy)
+                score += enemy.score_gain
+
+        # if the enemy is moving to right, then gives the farthest right position
+        # else, gives the farthest left position
+        if enemy_move == 'right':
+            if enemy.rect.right > farthest:
+                farthest = enemy.rect.right
+        else:
+            if enemy.rect.left < farthest:
+                farthest = enemy.rect.left
+
+        # checks to see if create_missile returns a missile rect or None
+        enemy_missile = enemy.create_missile(current_time)
+        if enemy_missile is not None:
+            enemy_missile_list.append(enemy_missile)
+
+        screen.blit(enemy.surf, enemy.rect)
+    return enemy_list, missile_list, score, farthest, enemy_missile_list, screen
+
+
+def change_move(enemy_move, farthest):
+    if enemy_move == 'right' and farthest >= 475:
+        enemy_move = 'left'
+    elif enemy_move == 'left' and farthest <= 25:
+        enemy_move = 'right'
+    return enemy_move
+
+
+def is_stage_clear(enemy_list, stage_clear, time_at_stage_clear, current_time):
+    if enemy_list == [] and not stage_clear:
+        stage_clear = True
+        time_at_stage_clear = current_time
+    return stage_clear, time_at_stage_clear
+
+
+def display_new_stage(new_stage, time_at_reset, screen, new_stage_surf, new_stage_rect):
+    if new_stage:
+        if pygame.time.get_ticks() - time_at_reset >= 2500:
+            new_stage = False
+        screen.blit(new_stage_surf, new_stage_rect)
+    return new_stage, screen
+
+
+def display_score(screen, score_title, font, score):
+    screen.blit(score_title, (25, 25))
+    score_surf = font.render(str(score), False, (255, 255, 255))
+    score_rect = score_surf.get_rect(topleft=(25, 50))
+    screen.blit(score_surf, score_rect)
+    return screen
+
+
+def player_missile_update(missile_list, missile_surf, screen):
+    for missile in missile_list:
+        missile.y -= 5
+        if missile.bottom <= 0:
+            missile_list.remove(missile)
+            continue
+        screen.blit(missile_surf, missile)
+    return missile_list, screen
+
+
+def enemy_missile_update(enemy_missile_list, enemy_missile_surf, stage, screen):
+    for missile in enemy_missile_list:
+        missile.y += 5 * (stage / 5 + 1)
+        if missile.top >= 600:
+            enemy_missile_list.remove(missile)
+            continue
+        screen.blit(enemy_missile_surf, missile)
+    return enemy_missile_list, screen
+
+
+def player_colls(player_rect, enemy_missile_list, life_count):
+    collision_index = player_rect.collidelist(enemy_missile_list)
+    if collision_index != -1:
+        del enemy_missile_list[collision_index]
+        life_count -= 1
+    return enemy_missile_list, life_count
 
 
 def main():
@@ -112,48 +199,18 @@ def main():
             # moves enemy to the right or left
             movement = enemy_movement(enemy_move)
 
+            # dont know why this **** works, but dont touch it
             # iterates over a copy of the enemy list
-            # TODO: put enemy loop in function
-            # score, missile_list, enemy_list, enemy_missile_ist, enemy_move = update_enemies(enemy_list, missile_list, )
-            for enemy in list(enemy_list):
-                enemy.rect.x += movement
-                enemy.animation()
 
-                # collisionlist() returns index of first collision
-                collision_index = enemy.rect.collidelist(missile_list)
-                if collision_index != -1:
-                    del missile_list[collision_index]
-                    enemy.health -= 1
-                    if not enemy.health:
-                        enemy_list.remove(enemy)
-                        score += enemy.score_gain
-
-                # if the enemy is moving to right, then gives the farthest right position
-                # else, gives the farthest left position
-                if enemy_move == 'right':
-                    if enemy.rect.right > farthest:
-                        farthest = enemy.rect.right
-                else:
-                    if enemy.rect.left < farthest:
-                        farthest = enemy.rect.left
-
-                # checks to see if create_missile returns a missile rect or None
-                enemy_missile = enemy.create_missile(current_time)
-                if enemy_missile is not None:
-                    enemy_missile_list.append(enemy_missile)
-
-                screen.blit(enemy.surf, enemy.rect)
+            enemy_list, missile_list, score, farthest, enemy_missile_list, screen = update_enemies(
+                enemy_list, movement, missile_list, score, enemy_move,
+                farthest, current_time, enemy_missile_list, screen)
 
             # once the farthest enemy is close enough to the border, then reverses direction
-            if enemy_move == 'right' and farthest >= 475:
-                enemy_move = 'left'
-            elif enemy_move == 'left' and farthest <= 25:
-                enemy_move = 'right'
-            # STOP
+            enemy_move = change_move(enemy_move, farthest)
 
-            if enemy_list == [] and not stage_clear:
-                stage_clear = True
-                time_at_stage_clear = current_time
+            # checks when stage is clear and assigns variables
+            stage_clear, time_at_stage_clear = is_stage_clear(enemy_list, stage_clear, time_at_stage_clear, current_time)
 
             if current_time - time_at_stage_clear > 1000 and stage_clear:
                 stage_clear = False
@@ -165,40 +222,27 @@ def main():
                 time_at_reset = pygame.time.get_ticks()
                 enemy_list = create_enemy_array()
 
-            if new_stage:
-                if pygame.time.get_ticks() - time_at_reset >= 2500:
-                    new_stage = False
-                screen.blit(new_stage_surf, new_stage_rect)
+            # display new stage
+            new_stage, screen = display_new_stage(new_stage, time_at_reset, screen, new_stage_surf, new_stage_rect)
 
-            screen.blit(score_title, (25, 25))
-            score_surf = font.render(str(score), False, (255, 255, 255))
-            score_rect = score_surf.get_rect(topleft=(25, 50))
-            screen.blit(score_surf, score_rect)
+            # display score
+            screen = display_score(screen, score_title, font, score)
 
-            # moves missiles and remove once they go off-screen
-            for missile in missile_list:
-                missile.y -= 5
-                if missile.bottom <= 0:
-                    missile_list.remove(missile)
-                    continue
-                screen.blit(missile_surf, missile)
+            # moves player missiles and remove once they go off-screen
+            missile_list, screen = player_missile_update(missile_list, missile_surf, screen)
 
-            for missile in enemy_missile_list:
-                missile.y += 5 * (stage / 5 + 1)
-                if missile.top >= 600:
-                    enemy_missile_list.remove(missile)
-                    continue
-                screen.blit(enemy_missile_surf, missile)
+            # moves enemy missiles and remove once they go off of screen
+            enemy_missile_list, screen = enemy_missile_update(enemy_missile_list, enemy_missile_surf, stage, screen)
 
-            collision_index = player_rect.collidelist(enemy_missile_list)
-            if collision_index != -1:
-                del enemy_missile_list[collision_index]
-                life_count -= 1
+            # checks for player collisions
+            enemy_missile_list, life_count = player_colls(player_rect, enemy_missile_list, life_count)
 
+            # displays life counter at bottom left
             for x in range(1, life_count + 1):
                 life_rect = life_surf.get_rect(bottomleft=(x * 30, 575))
                 screen.blit(life_surf, life_rect)
 
+            # if the player is still alive, display player
             if life_count >= 0:
                 # display player
                 screen.blit(player_surf, player_rect)
